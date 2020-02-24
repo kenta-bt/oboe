@@ -16,7 +16,6 @@
 package com.google.oboe.sample.drumthumper
 
 import android.content.res.AssetManager
-import android.media.midi.MidiDevice
 import android.util.Log
 import java.io.IOException
 
@@ -27,11 +26,15 @@ class DrumPlayer {
         val SAMPLE_RATE: Int = 44100
 
         // Sample Buffer IDs
-        val NUM_SAMPLES: Int = 3
-
+        val NUM_SAMPLES: Int = 8
         val BASSDRUM: Int = 0
-        val HIHATCLOSED: Int = 1
-        val SNAREDRUM: Int = 2
+        val SNAREDRUM: Int = 1
+        val CRASHCYMBAL: Int = 2
+        val RIDECYMBAL: Int = 3
+        val MIDTOM: Int = 4
+        val LOWTOM: Int = 5
+        val HIHATOPEN: Int = 6
+        val HIHATCLOSED: Int = 7
 
         // Logging Tag
         val TAG: String = "DrumPlayer"
@@ -48,8 +51,13 @@ class DrumPlayer {
     // asset-based samples
     fun loadWavAssets(assetMgr: AssetManager) {
         loadWavAsset(assetMgr, "KickDrum.wav", BASSDRUM)
-        loadWavAsset(assetMgr, "HiHat_Closed.wav", HIHATCLOSED)
         loadWavAsset(assetMgr, "SnareDrum.wav", SNAREDRUM)
+        loadWavAsset(assetMgr, "CrashCymbal.wav", CRASHCYMBAL)
+        loadWavAsset(assetMgr, "RideCymbal.wav", RIDECYMBAL)
+        loadWavAsset(assetMgr, "MidTom.wav", MIDTOM)
+        loadWavAsset(assetMgr, "LowTom.wav", LOWTOM)
+        loadWavAsset(assetMgr, "HiHat_Open.wav", HIHATOPEN)
+        loadWavAsset(assetMgr, "HiHat_Closed.wav", HIHATCLOSED)
     }
 
     fun loadWavAsset(assetMgr: AssetManager, assetName: String, index: Int) {
@@ -65,13 +73,6 @@ class DrumPlayer {
             Log.i(TAG, "IOException" + ex)
         }
     }
-    fun startReadingMidi(receiveDevice: MidiDevice, portNumber: Int){
-        startReadingMidiNative(receiveDevice, portNumber)
-    }
-
-    fun stopReadingMidi() {
-        stopReadingMidiNative()
-    }
 
     external fun setupAudioStreamNative(numSampleBuffers: Int, numChannels: Int, sampleRate: Int)
     external fun teardownAudioStreamNative()
@@ -84,8 +85,4 @@ class DrumPlayer {
     external fun clearOutputReset()
 
     external fun restartStream()
-
-    external fun startReadingMidiNative(receiveDevice: MidiDevice?, portNumber: Int)
-
-    external fun stopReadingMidiNative()
 }

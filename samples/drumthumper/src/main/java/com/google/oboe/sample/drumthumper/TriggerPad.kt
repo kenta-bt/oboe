@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.oboe.sample.drumthumper.view
+package com.google.oboe.sample.drumthumper
 
 import android.content.Context
 import android.graphics.Canvas
@@ -37,7 +37,7 @@ class TriggerPad: View {
     private var mIsDown = false;
 
     private var mText = "DrumPad";
-    private var mTextSizeSp = 50.0f
+    private var mTextSizeSp = 28.0f
 
     private val mTextColor = Color.BLACK
 

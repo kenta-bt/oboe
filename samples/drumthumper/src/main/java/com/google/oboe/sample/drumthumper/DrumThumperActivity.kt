@@ -13,34 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.oboe.sample.drumthumper.view
+package com.google.oboe.sample.drumthumper
 
-import android.Manifest
 import android.content.Context
-import android.content.pm.PackageManager
 import android.media.AudioDeviceCallback
 import android.media.AudioDeviceInfo
 import android.media.AudioManager
-import android.media.midi.MidiDevice
 import android.os.Bundle
-import android.util.Log
-import android.view.Menu
-import android.view.MenuItem
+
 import android.widget.Toast
+
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.LifecycleOwner
-import com.google.oboe.sample.drumthumper.Constants
-import com.google.oboe.sample.drumthumper.DrumPlayer
-import com.google.oboe.sample.drumthumper.R
-import com.google.oboe.sample.drumthumper.util.BluetoothUtil
-import com.google.oboe.sample.drumthumper.util.isSupportMidi
-import com.google.oboe.sample.drumthumper.viewmodel.BleMidiViewModel
-import es.dmoral.toasty.Toasty
-import org.koin.android.ext.android.inject
+
 import java.util.*
+
 import kotlin.concurrent.schedule
 
-class DrumThumperActivity : AppCompatActivity(), TriggerPad.DrumPadTriggerListener, LifecycleOwner {
+class DrumThumperActivity : AppCompatActivity(), TriggerPad.DrumPadTriggerListener {
     private val TAG = "DrumThumperActivity"
 
     private var mAudioMgr: AudioManager? = null
@@ -51,8 +40,6 @@ class DrumThumperActivity : AppCompatActivity(), TriggerPad.DrumPadTriggerListen
 
     private val mUseDeviceChangeFallback = true
     private var mDevicesInitialized = false
-
-    private val viewModel by inject<BleMidiViewModel>()
 
     init {
         // Load the library containing the a native code including the JNI  functions
@@ -67,19 +54,19 @@ class DrumThumperActivity : AppCompatActivity(), TriggerPad.DrumPadTriggerListen
      * Caveat: This callback also gets called when it is installed in the AudioManager and in
      * that case, there is as yet no device change so no need to restart the audio stream.
      */
-    inner class DeviceListener : AudioDeviceCallback() {
-        override fun onAudioDevicesAdded(addedDevices: Array<AudioDeviceInfo>) {
+    inner class DeviceListener: AudioDeviceCallback() {
+        override fun onAudioDevicesAdded(addedDevices: Array<AudioDeviceInfo> ) {
             // Note: This will get called when the callback is installed.
             if (mDevicesInitialized) {
                 // This is not the initial callback, so devices have changed
-                Toast.makeText(applicationContext, "Audio device added.", Toast.LENGTH_LONG).show()
+                Toast.makeText(applicationContext, "Added Device", Toast.LENGTH_LONG).show()
                 resetOutput()
             }
             mDevicesInitialized = true
         }
 
-        override fun onAudioDevicesRemoved(removedDevices: Array<AudioDeviceInfo>) {
-            Toast.makeText(applicationContext, "Audio device removed.", Toast.LENGTH_LONG).show()
+        override fun onAudioDevicesRemoved(removedDevices: Array<AudioDeviceInfo> ) {
+            Toast.makeText(applicationContext, "Removed Device", Toast.LENGTH_LONG).show()
             resetOutput()
         }
 
@@ -105,64 +92,12 @@ class DrumThumperActivity : AppCompatActivity(), TriggerPad.DrumPadTriggerListen
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        viewModel.init(navigator)
-        lifecycle.addObserver(viewModel)
-
         mAudioMgr = getSystemService(Context.AUDIO_SERVICE) as AudioManager
-
-        if (!isSupportMidi()) {
-            Toasty.error(this, "MIDI is not supported.", Toast.LENGTH_SHORT, true).show()
-            finish()
-        }
-
-        if (!BluetoothUtil.isBtEnabled()) {
-            Toasty.error(this, "Bluetooth is disabled.", Toast.LENGTH_SHORT, true).show()
-            finish()
-        }
-
-        if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            requestPermissions(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), 0)
-        }
     }
 
-    override fun onRequestPermissionsResult(
-            requestCode: Int,
-            permissions: Array<out String>,
-            grantResults: IntArray
-    ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+    override fun onStart() {
+        super.onStart()
 
-        if (requestCode == 0) {
-            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                Log.d(Constants.TAG, "PERMISSION_GRANTED")
-                Toasty.success(this, "Permission granted.", Toast.LENGTH_SHORT, true).show()
-            } else {
-                Log.e(Constants.TAG, "PERMISSION_DENIED")
-                Toasty.error(this, "Permission denied.", Toast.LENGTH_SHORT, true).show()
-                finish()
-            }
-        }
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        menuInflater.inflate(R.menu.options, menu)
-        return super.onCreateOptionsMenu(menu)
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return when (item.itemId) {
-            R.id.open_midi_device -> {
-                Toasty.success(applicationContext, "Connecting MIDI device...", Toast.LENGTH_SHORT, true).show()
-                viewModel.connectBleDevice()
-                true
-            }
-            R.id.close_midi_device -> {
-                Toasty.success(applicationContext, "Close MIDI device.", Toast.LENGTH_SHORT, true).show()
-                viewModel.closeMidiDevice()
-                true
-            }
-            else -> super.onOptionsItemSelected(item)
-        }
     }
 
     override fun onResume() {
@@ -187,7 +122,32 @@ class DrumThumperActivity : AppCompatActivity(), TriggerPad.DrumPadTriggerListen
         }
 
         run {
+            var pad: TriggerPad = findViewById(R.id.midTomPad)
+            pad.addListener(this)
+        }
+
+        run {
+            var pad: TriggerPad = findViewById(R.id.lowTomPad)
+            pad.addListener(this)
+        }
+
+        run {
+            var pad: TriggerPad = findViewById(R.id.hihatOpenPad)
+            pad.addListener(this)
+        }
+
+        run {
             var pad: TriggerPad = findViewById(R.id.hihatClosedPad)
+            pad.addListener(this)
+        }
+
+        run {
+            var pad: TriggerPad = findViewById(R.id.ridePad)
+            pad.addListener(this)
+        }
+
+        run {
+            var pad: TriggerPad = findViewById(R.id.crashPad)
             pad.addListener(this)
         }
 
@@ -203,8 +163,11 @@ class DrumThumperActivity : AppCompatActivity(), TriggerPad.DrumPadTriggerListen
 
     override fun onStop() {
         mDrumPlayer.teardownAudioStream()
-        mDrumPlayer.stopReadingMidi()
         super.onStop()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
     }
 
     //
@@ -215,24 +178,16 @@ class DrumThumperActivity : AppCompatActivity(), TriggerPad.DrumPadTriggerListen
         when (pad.id) {
             R.id.kickPad -> mDrumPlayer.trigger(DrumPlayer.BASSDRUM)
             R.id.snarePad -> mDrumPlayer.trigger(DrumPlayer.SNAREDRUM)
+            R.id.midTomPad -> mDrumPlayer.trigger(DrumPlayer.MIDTOM)
+            R.id.lowTomPad -> mDrumPlayer.trigger(DrumPlayer.LOWTOM)
+            R.id.hihatOpenPad -> mDrumPlayer.trigger(DrumPlayer.HIHATOPEN)
             R.id.hihatClosedPad -> mDrumPlayer.trigger(DrumPlayer.HIHATCLOSED)
+            R.id.ridePad -> mDrumPlayer.trigger(DrumPlayer.RIDECYMBAL)
+            R.id.crashPad -> mDrumPlayer.trigger(DrumPlayer.CRASHCYMBAL)
         }
     }
 
     override fun triggerUp(pad: TriggerPad) {
         // NOP
-    }
-
-    private val navigator = object : BleMidiNavigator {
-        override fun onMidiDeviceOpened(device: MidiDevice) {
-            mDrumPlayer.startReadingMidi(device, Constants.M5STACK_PORT_NO)
-            Toasty.success(applicationContext, "MIDI Device opened.", Toast.LENGTH_SHORT, true).show()
-        }
-
-        override fun onMidiDeviceClosed() {
-            mDrumPlayer.stopReadingMidi()
-            Toasty.success(applicationContext, "MIDI Device closed.", Toast.LENGTH_SHORT, true).show()
-        }
-
     }
 }

@@ -38,7 +38,7 @@ add_library(drumthumper SHARED
         )
 
 # Specify the libraries needed for DrumThumper
-target_link_libraries(drumthumper amidi android log)
+target_link_libraries(drumthumper android log)
 
 # Enable optimization flags: if having problems with source level debugging,
 # disable -Ofast ( and debug ), re-enable after done debugging.
