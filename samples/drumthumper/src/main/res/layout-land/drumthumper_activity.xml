@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    tools:context=".DrumThumperActivity">
+    tools:context=".view.DrumThumperActivity">
 
     <TextView
         android:id="@+id/textView"
@@ -20,7 +20,7 @@
         android:layout_height="128dp"
         android:orientation="horizontal">
 
-        <com.google.oboe.sample.drumthumper.TriggerPad
+        <com.google.oboe.sample.drumthumper.view.TriggerPad
             android:id="@+id/kickPad"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -28,7 +28,7 @@
             android:padding="5dp"
             android:text="Kick" />
 
-        <com.google.oboe.sample.drumthumper.TriggerPad
+        <com.google.oboe.sample.drumthumper.view.TriggerPad
             android:id="@+id/snarePad"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
@@ -36,7 +36,7 @@
             android:padding="5dp"
             android:text="Snare" />
 
-        <com.google.oboe.sample.drumthumper.TriggerPad
+        <com.google.oboe.sample.drumthumper.view.TriggerPad
             android:id="@+id/midTomPad"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -44,7 +44,7 @@
             android:padding="5dp"
             android:text="Mid Tom" />
 
-        <com.google.oboe.sample.drumthumper.TriggerPad
+        <com.google.oboe.sample.drumthumper.view.TriggerPad
             android:id="@+id/lowTomPad"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -58,7 +58,7 @@
         android:layout_height="128dp"
         android:orientation="horizontal">
 
-        <com.google.oboe.sample.drumthumper.TriggerPad
+        <com.google.oboe.sample.drumthumper.view.TriggerPad
             android:id="@+id/hihatOpenPad"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -66,7 +66,7 @@
             android:padding="5dp"
             android:text="Open Hat" />
 
-        <com.google.oboe.sample.drumthumper.TriggerPad
+        <com.google.oboe.sample.drumthumper.view.TriggerPad
             android:id="@+id/hihatClosedPad"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -74,7 +74,7 @@
             android:padding="5dp"
             android:text="Closed Hat" />
 
-        <com.google.oboe.sample.drumthumper.TriggerPad
+        <com.google.oboe.sample.drumthumper.view.TriggerPad
             android:id="@+id/ridePad"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -82,7 +82,7 @@
             android:padding="5dp"
             android:text="Ride" />
 
-        <com.google.oboe.sample.drumthumper.TriggerPad
+        <com.google.oboe.sample.drumthumper.view.TriggerPad
             android:id="@+id/crashPad"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
