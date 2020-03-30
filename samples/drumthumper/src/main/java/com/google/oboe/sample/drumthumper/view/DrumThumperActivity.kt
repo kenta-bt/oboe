@@ -39,6 +39,7 @@ import es.dmoral.toasty.Toasty
 import org.koin.android.ext.android.inject
 import java.util.*
 import kotlin.concurrent.schedule
+import kotlinx.android.synthetic.main.drumthumper_activity.*
 
 class DrumThumperActivity : AppCompatActivity(), TriggerPad.DrumPadTriggerListener, LifecycleOwner {
     private val TAG = "DrumThumperActivity"
