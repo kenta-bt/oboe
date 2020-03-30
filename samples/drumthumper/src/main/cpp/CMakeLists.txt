@@ -30,6 +30,7 @@ include_directories(
 # App specific sources
 set (APP_SOURCES
         DrumPlayerJNI.cpp
+        DrumThumperActivity.cpp
         )
 
 # Build the drumthumper (native) library

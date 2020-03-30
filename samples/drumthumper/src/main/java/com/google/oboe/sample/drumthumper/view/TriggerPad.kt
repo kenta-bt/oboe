@@ -20,6 +20,8 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.RectF
+import android.os.Handler
+import android.os.Looper
 import android.util.AttributeSet
 import android.util.TypedValue
 import android.view.MotionEvent
@@ -211,5 +213,15 @@ class TriggerPad: View {
         for( listener in mListeners) {
             listener.triggerUp(this)
         }
+    }
+
+    fun receiveMidi() {
+        mIsDown = true
+        invalidate()
+
+        Handler(Looper.getMainLooper()).postDelayed({
+            mIsDown = false
+            invalidate()
+        }, 100L)
     }
 }
