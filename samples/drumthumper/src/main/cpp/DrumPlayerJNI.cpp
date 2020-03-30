@@ -50,6 +50,26 @@ static AMidiOutputPort *sMidiOutputPort = nullptr;
 static pthread_t sReadThread;
 static std::atomic<bool> sReading(false);
 
+// The Data Callback
+extern JavaVM* theJvm;              // Need this for allocating data buffer for...
+extern jobject dataCallbackObj;     // This is the (Java) object that implements...
+extern jmethodID midDataCallback;   // ...this callback routine
+
+static void SendTheReceivedData(uint8_t* data, int numBytes) {
+    JNIEnv* env;
+    theJvm->AttachCurrentThread(&env, NULL);
+    if (env == NULL) {
+        LOGE("Error retrieving JNI Env");
+    }
+
+    // Allocate the Java array and fill with received data
+    jbyteArray ret = env->NewByteArray(numBytes);
+    env->SetByteArrayRegion (ret, 0, numBytes, (jbyte*)data);
+
+    // send it to the (Java) callback
+    env->CallVoidMethod(dataCallbackObj, midDataCallback, ret);
+}
+
 /**
  * Native (JNI) implementation of DrumPlayer.setupAudioStreamNative()
  */
@@ -142,10 +162,10 @@ static void playSound(const uint8_t incomingMessage[]) {
         case 0x3C:
             sDTPlayer.triggerDown(0);
             break;
-        case 0x3D:
+        case 0x3F:
             sDTPlayer.triggerDown(1);
             break;
-        case 0x3E:
+        case 0x43:
             sDTPlayer.triggerDown(2);
             break;
         default:
@@ -193,6 +213,7 @@ static void *readThreadRoutine(void *context) {
                 // (optionally) Dump to log
                 logMidiBuffer(timestamp, incomingMessage, numBytesReceived);
                 playSound(incomingMessage);
+                SendTheReceivedData(incomingMessage, numBytesReceived);
             } else if (opcode == AMIDI_OPCODE_FLUSH) {
                 // ignore
             }

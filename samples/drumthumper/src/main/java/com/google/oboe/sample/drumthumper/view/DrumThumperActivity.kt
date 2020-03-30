@@ -39,6 +39,7 @@ import es.dmoral.toasty.Toasty
 import org.koin.android.ext.android.inject
 import java.util.*
 import kotlin.concurrent.schedule
+import kotlinx.android.synthetic.main.drumthumper_activity.*
 
 class DrumThumperActivity : AppCompatActivity(), TriggerPad.DrumPadTriggerListener, LifecycleOwner {
     private val TAG = "DrumThumperActivity"
@@ -104,6 +105,8 @@ class DrumThumperActivity : AppCompatActivity(), TriggerPad.DrumPadTriggerListen
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        initNative()
 
         viewModel.init(navigator)
         lifecycle.addObserver(viewModel)
@@ -177,18 +180,15 @@ class DrumThumperActivity : AppCompatActivity(), TriggerPad.DrumPadTriggerListen
 
         // hookup the UI
         run {
-            var pad: TriggerPad = findViewById(R.id.kickPad)
-            pad.addListener(this)
+            kickPad.addListener(this)
         }
 
         run {
-            var pad: TriggerPad = findViewById(R.id.snarePad)
-            pad.addListener(this)
+            snarePad.addListener(this)
         }
 
         run {
-            var pad: TriggerPad = findViewById(R.id.hihatClosedPad)
-            pad.addListener(this)
+            hihatClosedPad.addListener(this)
         }
 
         mDrumPlayer.setupAudioStream()
@@ -234,5 +234,30 @@ class DrumThumperActivity : AppCompatActivity(), TriggerPad.DrumPadTriggerListen
             Toasty.success(applicationContext, "MIDI Device closed.", Toast.LENGTH_SHORT, true).show()
         }
 
+    }
+
+    //
+    // Native Interface methods
+    //
+
+    private external fun initNative()
+
+    /**
+     * Called from the native code when MIDI messages are received.
+     * @param message
+     */
+    private fun onNativeMessageReceive(message: ByteArray) {
+        if (message.size < 2) return
+        if (message[0] != 0x90.toByte()) return
+
+        // Messages are received on some other thread, so switch to the UI thread
+        // before attempting to access the UI
+        runOnUiThread {
+            when (message[1]) {
+                0x3C.toByte() -> kickPad.receiveMidi()
+                0x3F.toByte() -> hihatClosedPad.receiveMidi()
+                0x43.toByte() -> snarePad.receiveMidi()
+            }
+        }
     }
 }
